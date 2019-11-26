@@ -51,7 +51,7 @@
         }
         // 为每个表单的 submit 事件绑定提交报告动作
         form.onsubmit = function() {
-          input.value = pup.report();
+          input.value = pup.notes();
         };
       });
     }
@@ -87,14 +87,6 @@
 
     notebook = null;
 
-  // // 判断是否内部链接
-  // function isInternalURL(url) {
-  //   if (!url) return true;
-  //   var a = document.createElement('a');
-  //   a.href = url;
-  //   return a.hostname.toLowerCase() === lc.hostname.toLowerCase();
-  // }
-
   function completeURL(url) {
     if (url.slice(-1) === '/') {
       url += 'index.html';
@@ -103,7 +95,7 @@
   }
 
   function getNotebook() {
-    notebook = ls['PUP'];
+    notebook = ls['PUPsNoteBook'];
 
     // 判断是否使用默认数据
     try {
@@ -149,7 +141,7 @@
   
   function takenote() {
     current.leave = Date.now();
-    ls['PUP'] = JSON.stringify(pup);
+    ls['PUPsNoteBook'] = JSON.stringify(notebook);
   }
 
   var _ticktack = null;
@@ -184,18 +176,18 @@
      * 1.每条浏览记录包括 网址 和 停留时间 两部分
      * 2.显示顺序即浏览顺序倒序
      */
-    report: function() {
+    notes: function() {
       takenote();
-      var report = {
-        refer: pup.memory[0].url,
+      var notes = {
+        refer: notebook.memory[0].url,
         trace: [],
       };
       var record = null;
-      for (var i = pup.memory.length - 1; i > 0; i--) {
-        record = pup.memory[i];
-        report.trace.push([record.url, Math.round((record.leave - record.enter)/1000)]);
+      for (var i = notebook.memory.length - 1; i > 0; i--) {
+        record = notebook.memory[i];
+        notes.trace.push([record.url, Math.round((record.leave - record.enter)/1000)]);
       }
-      return JSON.stringify(report);
+      return JSON.stringify(notes);
     },
   };
 });
