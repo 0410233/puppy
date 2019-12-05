@@ -71,7 +71,7 @@
 
     now = Date.now(),
 
-    // 前一个网址
+    // 来源网址
     refer = {
       url: completeURL(document.referrer),
       enter: now,
@@ -97,7 +97,7 @@
   function getNotebook() {
     notebook = ls['PUPsNoteBook'];
 
-    // 判断是否使用默认数据
+    // 判断如何更新记录
     try {
       // 没有本地数据
       if (!notebook) throw '';
@@ -109,26 +109,29 @@
       var len = notebook.memory.length,
         last = notebook.memory[len-1];
 
-      // 记录中的最后一个网址等于当前网址
-      if (last.url === current.url) {
-        // 访问间隔小于 5 秒
-        if (now - last.leave < 5000) {
-          current = last;
-          current.leave = now;
-        } else {
-          throw '';
-        }
-      } else {
-        // 记录中的最后一个网址等于当前上一个网址，且访问间隔小于 5 秒
-        if (last.url === refer.url && now - last.leave < 5000) {
-          notebook.memory.push(current);
-        } else {
-          throw '';
-        }
+      // 访问间隔大于 5 秒（稍长于 3 秒的自动保存间隔）
+      if (now - last.leave > 5000) {
+        throw '';
+      }
+
+      // 正常跳转，来源网址等于记录中的最后一个网址
+      if (last.url === refer.url) {
+        notebook.memory.push(current);
+      }
+      
+      // 刷新，当前网址等于记录中的最后一个网址
+      else if (last.url === current.url) {
+        current = last;
+        current.leave = now;
+      } 
+
+      // 其它
+      else {
+        throw '';
       }
 
     } catch (e) {
-      // 使用默认数据
+      // 新建记录
       notebook = {
         version: version,
         memory: [
