@@ -1,4 +1,4 @@
-/*
+/**
  * 
  * VERSION 0.1.0
  *
@@ -26,14 +26,15 @@
   window.pup = pup;
 
   // 绑定 unload 事件
-  window.addEventListener('unload', function() { 
+  window.onunload = function() {
     // 停止自动保存（同时保存一次数据）
     pup.sleep();
     window.pup = null;
-  });
+  };
 
   // 绑定 DOMContentLoaded 事件
-  window.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    // console.log('EVENT:DOMContentLoaded');
     pup.wakeup();
 
     // 根据指定的选择器选取所有表单元素
@@ -67,7 +68,7 @@
 
   var
     // 版本，升级时需要
-    version = '0.1.0',
+    version = '0.2.0',
 
     now = Date.now(),
 
@@ -100,18 +101,18 @@
     // 判断如何更新记录
     try {
       // 没有本地数据
-      if (!notebook) throw '';
+      if (!notebook) throw 'notebook is not available';
 
       // 无法转化本地数据, 或版本不匹配
       notebook = JSON.parse(notebook);
-      if (notebook.version !== version) throw '';
+      if (!notebook || notebook.version !== version) throw 'notebook is not available or version does not match';
 
       var len = notebook.memory.length,
         last = notebook.memory[len-1];
 
       // 访问间隔大于 5 秒（稍长于 3 秒的自动保存间隔）
       if (now - last.leave > 5000) {
-        throw '';
+        throw '>=5s';
       }
 
       // 正常跳转，来源网址等于记录中的最后一个网址
@@ -127,10 +128,12 @@
 
       // 其它
       else {
-        throw '';
+        throw 'other';
       }
 
     } catch (e) {
+      // console.error(e);
+      // console.log(JSON.stringify(notebook));
       // 新建记录
       notebook = {
         version: version,
@@ -167,11 +170,15 @@
     wakeup: function() {
       getNotebook();
       hardworking();
+      // console.log('pup waked up');
+      // console.log('pup\'s nodebook:');
+      // console.log(JSON.stringify(notebook));
     },
 
     sleep: function() {
       clearTimeout(_ticktack);
       takenote();
+      // console.log('pup sleeped')
     },
 
     /**
