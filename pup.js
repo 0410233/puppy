@@ -1,6 +1,6 @@
 /**
  *
- * VERSION 0.2.2
+ * VERSION 0.2.3
  *
  * 简单的站内跟踪代码
  * 利用本地存储记录用户浏览轨迹，在用户提交表单时将报告一并提交
@@ -17,7 +17,17 @@
  */
 ;(function(window, factory) {
 
-  if (!window.addEventListener) return;
+  if (!document.addEventListener) return;
+
+  // NodeList.prototype.forEach Polyfill
+  if (window.NodeList && !NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = function (callback, thisArg) {
+      thisArg = thisArg || window;
+      for (var i = 0; i < this.length; i++) {
+        callback.call(thisArg, this[i], i, this);
+      }
+    };
+  }
 
   // 生成一个全局跟踪对象，同时初始化本地数据
   var pup = factory();
@@ -40,11 +50,9 @@
     // 根据指定的选择器选取所有表单元素
     var forms = document.querySelectorAll(pup.selector);
     if (forms.length) {
-      var form, input, index, len;
-      for (index = 0, len = forms.length; index < len; index++) {
-        form = forms.item(index);
+      forms.forEach(function(form) {
         // 向每个表单添加 input
-        input = form.querySelector('input[name="track_report"]');
+        var input = form.querySelector('input[name="track_report"]');
         if (!input) {
           input = document.createElement('input');
           input.setAttribute('name', 'track_report');
@@ -53,10 +61,10 @@
           form.appendChild(input);
         }
         // 为每个表单的 submit 事件绑定提交报告动作
-        form.onsubmit = function() {
+        form.addEventListener('submit', function() {
           input.value = pup.notes();
-        };
-      }
+        });
+      });
     }
   });
 
@@ -70,7 +78,7 @@
 
   var
     // 版本，升级时需要
-    version = '0.2.2',
+    version = '0.2.3',
 
     now = Date.now(),
 
