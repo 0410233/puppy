@@ -1,6 +1,6 @@
 /**
- * 
- * VERSION 0.1.0
+ *
+ * VERSION 0.2.2
  *
  * 简单的站内跟踪代码
  * 利用本地存储记录用户浏览轨迹，在用户提交表单时将报告一并提交
@@ -40,10 +40,12 @@
     // 根据指定的选择器选取所有表单元素
     var forms = document.querySelectorAll(pup.selector);
     if (forms.length) {
-      forms.forEach(function(form) {
+      var form, input, index, len;
+      for (index = 0, len = forms.length; index < len; index++) {
+        form = forms.item(index);
         // 向每个表单添加 input
-        var input = form.querySelector( 'input[name="track_report"]' );
-        if ( !input ) {
+        input = form.querySelector('input[name="track_report"]');
+        if (!input) {
           input = document.createElement('input');
           input.setAttribute('name', 'track_report');
           input.setAttribute('type', 'text');
@@ -54,7 +56,7 @@
         form.onsubmit = function() {
           input.value = pup.notes();
         };
-      });
+      }
     }
   });
 
@@ -68,7 +70,7 @@
 
   var
     // 版本，升级时需要
-    version = '0.2.0',
+    version = '0.2.2',
 
     now = Date.now(),
 
@@ -119,12 +121,12 @@
       if (last.url === refer.url) {
         notebook.memory.push(current);
       }
-      
+
       // 刷新，当前网址等于记录中的最后一个网址
       else if (last.url === current.url) {
         current = last;
         current.leave = now;
-      } 
+      }
 
       // 其它
       else {
@@ -144,7 +146,7 @@
       };
     }
   }
-  
+
   function takenote() {
     current.leave = Date.now();
     ls['PUPsNoteBook'] = JSON.stringify(notebook);
@@ -166,7 +168,7 @@
       this.selector = selector;
     },
 
-    // 获取或生成本地数据 
+    // 获取或生成本地数据
     wakeup: function() {
       getNotebook();
       hardworking();
