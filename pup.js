@@ -1,6 +1,6 @@
 /**
  *
- * VERSION 0.2.3
+ * VERSION 0.3.0
  *
  * 简单的站内跟踪代码
  * 利用本地存储记录用户浏览轨迹，在用户提交表单时将报告一并提交
@@ -44,26 +44,14 @@
 
   // 绑定 DOMContentLoaded 事件
   document.addEventListener('DOMContentLoaded', function() {
-    // console.log('EVENT:DOMContentLoaded');
     pup.wakeup();
 
     // 根据指定的选择器选取所有表单元素
     var forms = document.querySelectorAll(pup.selector);
     if (forms.length) {
       forms.forEach(function(form) {
-        // 向每个表单添加 input
-        var input = form.querySelector('input[name="track_report"]');
-        if (!input) {
-          input = document.createElement('input');
-          input.setAttribute('name', 'track_report');
-          input.setAttribute('type', 'text');
-          input.setAttribute('style', 'display:none');
-          form.appendChild(input);
-        }
-        // 为每个表单的 submit 事件绑定提交报告动作
-        form.addEventListener('submit', function() {
-          input.value = pup.notes();
-        });
+        // 初始化表单
+        pup.init(form)
       });
     }
   });
@@ -78,13 +66,13 @@
 
   var
     // 版本，升级时需要
-    version = '0.2.3',
+    version = '0.3.0',
 
     now = Date.now(),
 
     // 来源网址
     refer = {
-      url: completeURL(document.referrer),
+      url: document.referrer,
       enter: now,
       leave: now,
     },
@@ -142,8 +130,6 @@
       }
 
     } catch (e) {
-      // console.error(e);
-      // console.log(JSON.stringify(notebook));
       // 新建记录
       notebook = {
         version: version,
@@ -176,19 +162,33 @@
       this.selector = selector;
     },
 
+    init: function(form) {
+      var pup = this;
+
+      // 向每个表单添加 input
+      var input = form.querySelector('input[name="track_report"]');
+      if (!input) {
+        input = document.createElement('input');
+        input.setAttribute('name', 'track_report');
+        input.setAttribute('type', 'text');
+        input.setAttribute('style', 'display:none');
+        form.appendChild(input);
+      }
+      // 为每个表单的 submit 事件绑定提交报告动作
+      form.addEventListener('submit', function() {
+        input.value = pup.notes();
+      });
+    },
+
     // 获取或生成本地数据
     wakeup: function() {
       getNotebook();
       hardworking();
-      // console.log('pup waked up');
-      // console.log('pup\'s nodebook:');
-      // console.log(JSON.stringify(notebook));
     },
 
     sleep: function() {
       clearTimeout(_ticktack);
       takenote();
-      // console.log('pup sleeped')
     },
 
     /**
